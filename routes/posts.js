@@ -22,6 +22,7 @@ Router.post('/', async (req, res) => {
     const { name, body } = req.body;
     const newPost = new Post({
       name,
+      author,
       body,
     });
     const post = await newPost.save();
@@ -39,6 +40,7 @@ Router.patch('/:id', async (req, res) => {
     const { name, body } = req.body;
     const updatePost = {
       name,
+      author,
       body,
     };
 
