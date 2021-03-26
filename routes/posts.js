@@ -36,7 +36,6 @@ Router.post('/', async (req, res) => {
 // @access Public
 Router.patch('/:id', async (req, res) => {
   try {
-    let Post = await Post.findById(req.params.id);
     const { name, body } = req.body;
     const updatePost = {
       name,
