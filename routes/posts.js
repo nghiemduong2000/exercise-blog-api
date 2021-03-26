@@ -19,11 +19,19 @@ Router.get('/', async (req, res) => {
 // @access Public
 Router.post('/', async (req, res) => {
   try {
-    const { name, body } = req.body;
+    const { name, body, author, description } = req.body;
+
+    if (!name || !body || !author || !description) {
+      return res.status(400).json({
+        msg: 'Vui lòng điền vào ô trống',
+      });
+    }
+
     const newPost = new Post({
       name,
       author,
       body,
+      description,
     });
     const post = await newPost.save();
     res.json(post);
@@ -37,11 +45,18 @@ Router.post('/', async (req, res) => {
 // @access Public
 Router.patch('/:id', async (req, res) => {
   try {
-    const { name, body } = req.body;
+    const { name, body, author, description } = req.body;
+
+    if (!name || !body || !author || !description) {
+      return res.status(400).json({
+        msg: 'Vui lòng điền vào ô trống',
+      });
+    }
     const updatePost = {
       name,
       author,
       body,
+      description,
     };
 
     const posts = await Post.findByIdAndUpdate(req.params.id, updatePost, {
