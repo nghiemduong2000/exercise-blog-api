@@ -2,15 +2,22 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: 'https://exercises-at-vmo.web.app',
+    credentials: true,
+  })
+);
 
 app.use(express.json());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 
 const db = process.env.MONGO_URI;
-console.log(db);
 
 // Connect to Mongo
 mongoose.connect(db, {
@@ -26,6 +33,7 @@ connection.once('open', () => {
 });
 
 app.use('/api/posts', require('./routes/posts'));
+app.use('/api/admin', require('./routes/admin'));
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server started on port ${port}`));
