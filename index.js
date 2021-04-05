@@ -9,7 +9,9 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: 'https://exercises-at-vmo.web.app',
+    // http://localhost:3000
+    // https://exercises-at-vmo.web.app
+    origin: 'http://localhost:3000',
     credentials: true,
   })
 );
