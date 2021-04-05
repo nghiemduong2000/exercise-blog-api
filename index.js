@@ -11,7 +11,7 @@ app.use(
   cors({
     // http://localhost:3000
     // https://exercises-at-vmo.web.app
-    origin: 'http://localhost:3000',
+    origin: 'https://exercises-at-vmo.web.app',
     credentials: true,
   })
 );
