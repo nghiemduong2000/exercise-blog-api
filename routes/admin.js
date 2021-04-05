@@ -69,7 +69,6 @@ Router.post('/auth', async (req, res) => {
 // @desc Logout admin
 // @access Private
 Router.get('/deleteCookie', (req, res) => {
-  console.log('hello');
   res
     .status(202)
     .clearCookie('token', {
