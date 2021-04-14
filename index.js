@@ -1,16 +1,23 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
 dotenv.config();
 
 const app = express();
+const whitelist = ["http://localhost:3000", "https://exercises-at-vmo.web.app"];
 app.use(
   cors({
     // http://localhost:3000
     // https://exercises-at-vmo.web.app
-    origin: 'https://exercises-at-vmo.web.app',
+    origin: function (origin, callback) {
+      if (whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -29,12 +36,13 @@ mongoose.connect(db, {
 });
 
 const { connection } = mongoose;
-connection.once('open', () => {
-  console.log('Mongo database connection established successfully');
+connection.once("open", () => {
+  console.log("Mongo database connection established successfully");
 });
 
-app.use('/api/posts', require('./routes/posts'));
-app.use('/api/admin', require('./routes/admin'));
+app.use("/api/posts", require("./routes/posts"));
+app.use("/api/admin", require("./routes/admin"));
+app.use("/api/films", require("./routes/films"));
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server started on port ${port}`));
