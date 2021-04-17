@@ -5,6 +5,12 @@ const Router = express.Router();
 const cloudinary = require("../utils/cloudinary");
 const upload = require("../utils/multer.js");
 
+const createUploader = async (file) => {
+  return await cloudinary.uploader.upload(file, {
+    upload_preset: "review_film_project",
+  });
+};
+
 // @route GET films
 // @desc Get All Films
 // @access Public
@@ -20,7 +26,7 @@ Router.get("/", async (req, res) => {
 // @route POST post
 // @desc Create A New Post
 // @access Public
-Router.post("/", upload.any(), async (req, res) => {
+Router.post("/", async (req, res) => {
   try {
     const {
       title,
@@ -28,8 +34,8 @@ Router.post("/", upload.any(), async (req, res) => {
       author,
       description,
       genre,
-      review,
-      imageFilm,
+      images,
+      isUpload,
     } = req.body;
 
     if (!title || !content || !author || !description || !genre) {
@@ -38,20 +44,17 @@ Router.post("/", upload.any(), async (req, res) => {
       });
     }
 
-    if (req.files[0]) {
-      await cloudinary.uploader
-        .upload_stream(
-          {
-            upload_preset: "review_film_project",
-          },
-          (err, response) => {
-            console.log(req.files[0].buffer);
-            addFilm(req, res, response.secure_url);
-          }
-        )
-        .end(req.files[0].buffer);
+    if (isUpload === "UPLOAD") {
+      let file_urls = [];
+
+      for (let file of images) {
+        const response = await createUploader(file);
+        file_urls.push(response);
+      }
+
+      addFilm(req, res, file_urls[0].secure_url, file_urls[1].secure_url);
     } else {
-      addFilm(req, res, imageFilm);
+      addFilm(req, res, images[0], images[1]);
     }
   } catch (err) {
     console.log(err);
@@ -63,7 +66,7 @@ Router.post("/", upload.any(), async (req, res) => {
 // @access Public
 Router.patch("/:id", upload.any(), async (req, res) => {
   try {
-    const { title, content, author, description, genre, imageFilm } = req.body;
+    const { title, content, author, description, genre, posterFilm } = req.body;
     console.log(req.body);
 
     if (!title || !content || !author || !description || !genre) {

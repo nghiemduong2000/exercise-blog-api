@@ -22,7 +22,8 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 const db = process.env.MONGO_URI;

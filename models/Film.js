@@ -7,7 +7,11 @@ const FilmSchema = new Schema({
     type: String,
     required: true,
   },
-  imageFilm: {
+  posterFilm: {
+    type: String,
+    required: true,
+  },
+  bannerFilm: {
     type: String,
     required: true,
   },
