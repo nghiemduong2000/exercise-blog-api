@@ -6,11 +6,12 @@ const cookieParser = require("cookie-parser");
 dotenv.config();
 
 const app = express();
-const whitelist = ["http://localhost:3000", "https://exercises-at-vmo.web.app"];
+const whitelist = [
+  "http://localhost:3000",
+  "https://exercises-at-vmo.web.app, https://vmoflix-vn.web.app",
+];
 app.use(
   cors({
-    // http://localhost:3000
-    // https://exercises-at-vmo.web.app
     origin: function (origin, callback) {
       if (whitelist.indexOf(origin) !== -1) {
         callback(null, true);
