@@ -8,7 +8,8 @@ dotenv.config();
 const app = express();
 const whitelist = [
   "http://localhost:3000",
-  "https://exercises-at-vmo.web.app, https://vmoflix-vn.web.app",
+  "https://exercises-at-vmo.web.app",
+  "https://vmoflix-vn.web.app",
 ];
 app.use(
   cors({
