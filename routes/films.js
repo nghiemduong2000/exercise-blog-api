@@ -3,7 +3,6 @@ const Film = require("../models/Film");
 const { addFilm, updateFilm } = require("../utils/addOrUpdateFilm");
 const Router = express.Router();
 const cloudinary = require("../utils/cloudinary");
-const upload = require("../utils/multer.js");
 
 const createUploader = async (file) => {
   return await cloudinary.uploader.upload(file, {
@@ -64,29 +63,34 @@ Router.post("/", async (req, res) => {
 // @route PATCH post
 // @desc UPDATE A Post
 // @access Public
-Router.patch("/:id", upload.any(), async (req, res) => {
+Router.patch("/:id", async (req, res) => {
   try {
-    const { title, content, author, description, genre, posterFilm } = req.body;
-    console.log(req.body);
+    const {
+      title,
+      content,
+      author,
+      description,
+      genre,
+      images,
+      isUpload,
+    } = req.body;
 
     if (!title || !content || !author || !description || !genre) {
       return res.status(400).json({
         msg: "Vui lòng điền vào ô trống",
       });
     }
-    if (req.files[0]) {
-      await cloudinary.uploader
-        .upload_stream(
-          {
-            upload_preset: "review_film_project",
-          },
-          (err, response) => {
-            updateFilm(req, res, response.secure_url);
-          }
-        )
-        .end(req.files[0].buffer);
+    if (isUpload === "UPLOAD") {
+      let file_urls = [];
+
+      for (let file of images) {
+        const response = await createUploader(file);
+        file_urls.push(response);
+      }
+
+      updateFilm(req, res, file_urls[0].secure_url, file_urls[1].secure_url);
     } else {
-      updateFilm(req, res, imageFilm);
+      updateFilm(req, res, images[0], images[1]);
     }
   } catch (err) {
     console.log(err);

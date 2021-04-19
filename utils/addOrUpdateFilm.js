@@ -25,29 +25,33 @@ const addFilm = (req, res, poster, banner) => {
 };
 
 const updateFilm = async (req, res, poster, banner) => {
-  const { title, author, content, description, genre, review } = req.body;
+  try {
+    const { title, author, content, description, genre, review } = req.body;
 
-  let infoFilm = {
-    title,
-    author,
-    content,
-    description,
-    review,
-    genre,
-    posterFilm: poster,
-    bannerFilm: banner,
-  };
+    let infoFilm = {
+      title,
+      author,
+      content,
+      description,
+      review,
+      genre,
+      posterFilm: poster,
+      bannerFilm: banner,
+    };
 
-  for (let prop in infoFilm) {
-    if (!infoFilm[prop]) {
-      delete infoFilm[prop];
+    for (let prop in infoFilm) {
+      if (!infoFilm[prop]) {
+        delete infoFilm[prop];
+      }
     }
-  }
 
-  const updateFilm = await Film.findByIdAndUpdate(req.params.id, infoFilm, {
-    new: true,
-  });
-  await res.json(updateFilm);
+    const updateFilm = await Film.findByIdAndUpdate(req.params.id, infoFilm, {
+      new: true,
+    });
+    await res.json(updateFilm);
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 module.exports = {
