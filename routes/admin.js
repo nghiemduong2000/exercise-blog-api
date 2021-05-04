@@ -3,12 +3,12 @@ const Admin = require("../models/Admin");
 const Router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const auth = require("../middlewares/auth");
+const authAdmin = require("../middlewares/authAdmin");
 
 // @route GET Auth
 // @desc Get Admin Data
 // @access Private
-Router.get("/", auth, (req, res) => {
+Router.get("/", authAdmin, (req, res) => {
   Admin.findById(req.admin.id)
     .select("-password")
     .then((admin) => res.json(admin));
@@ -44,7 +44,7 @@ Router.post("/auth", async (req, res) => {
       (err, token) => {
         if (err) throw err;
         if (!req.signedCookies.token) {
-          res.cookie("token", token, {
+          res.cookie("tokenAdmin", token, {
             maxAge: 3600 * 24 * 1000,
             signed: true,
             httpOnly: true,
@@ -69,7 +69,7 @@ Router.post("/auth", async (req, res) => {
 Router.get("/deleteCookie", (req, res) => {
   res
     .status(202)
-    .clearCookie("token", {
+    .clearCookie("tokenAdmin", {
       sameSite: "none",
       secure: true,
     })

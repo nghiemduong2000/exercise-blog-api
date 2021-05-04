@@ -7,6 +7,10 @@ const FilmSchema = new Schema({
     type: String,
     required: true,
   },
+  titleSearch: {
+    type: String,
+    required: true,
+  },
   posterFilm: {
     type: String,
     required: true,
@@ -15,11 +19,7 @@ const FilmSchema = new Schema({
     type: String,
     required: true,
   },
-  author: {
-    type: String,
-    required: true,
-  },
-  content: {
+  youtubeURL: {
     type: String,
     required: true,
   },
@@ -27,18 +27,24 @@ const FilmSchema = new Schema({
     type: String,
     required: true,
   },
+  actor: {
+    type: Array,
+    default: [],
+  },
   genre: {
-    type: String,
+    type: Array,
     required: true,
   },
-  review: {
-    type: Map,
-    default: {},
+  reviews: {
+    type: Array,
+    default: [],
   },
   date: {
     type: Date,
     default: Date.now,
   },
 });
+
+FilmSchema.index({ titleSearch: "text" });
 
 module.exports = Film = mongoose.model("Film", FilmSchema);

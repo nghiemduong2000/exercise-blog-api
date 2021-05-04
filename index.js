@@ -45,6 +45,7 @@ connection.once("open", () => {
 
 app.use("/api/posts", require("./routes/posts"));
 app.use("/api/admin", require("./routes/admin"));
+app.use("/api/user", require("./routes/user"));
 app.use("/api/films", require("./routes/films"));
 
 const port = process.env.PORT || 5000;

@@ -1,16 +1,23 @@
 const Film = require("../models/Film");
 
 const addFilm = (req, res, poster, banner) => {
-  const { title, author, content, description, review, genre } = req.body;
+  const {
+    title,
+    youtubeURL,
+    description,
+    genre,
+    actor,
+    titleSearch,
+  } = req.body;
   let infoFilm = {
     title,
-    author,
-    content,
+    youtubeURL,
     description,
-    review,
     genre,
+    actor,
     posterFilm: poster,
     bannerFilm: banner,
+    titleSearch,
   };
 
   for (let prop in infoFilm) {
@@ -26,17 +33,26 @@ const addFilm = (req, res, poster, banner) => {
 
 const updateFilm = async (req, res, poster, banner) => {
   try {
-    const { title, author, content, description, genre, review } = req.body;
+    const {
+      title,
+      youtubeURL,
+      description,
+      genre,
+      reviews,
+      actor,
+      titleSearch,
+    } = req.body;
 
     let infoFilm = {
       title,
-      author,
-      content,
+      youtubeURL,
       description,
-      review,
+      reviews,
       genre,
+      actor,
       posterFilm: poster,
       bannerFilm: banner,
+      titleSearch,
     };
 
     for (let prop in infoFilm) {
