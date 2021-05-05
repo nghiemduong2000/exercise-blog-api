@@ -66,7 +66,7 @@ Router.get("/search", async (req, res) => {
   try {
     const { q } = req.query;
     const films = await Film.find(
-      { $text: { $search: q, $caseSensitive: true } },
+      { $text: { $search: q } },
       { score: { $meta: "textScore" } }
     ).sort({ score: { $meta: "textScore" } });
     res.json(films);
