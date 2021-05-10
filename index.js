@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 dotenv.config();
+const bcrypt = require("bcrypt");
 
 const app = express();
 const whitelist = [

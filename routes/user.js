@@ -43,10 +43,24 @@ Router.get("/amount", authAdmin, async (req, res) => {
 // @route GET Auth
 // @desc Get User Data
 // @access Private
-Router.get("/", authUser, (req, res) => {
-  User.findById(req.user.id)
-    .select("-userPassword")
-    .then((user) => res.json(user));
+Router.get("/", authUser, async (req, res) => {
+  const userToCheck = await User.findById(req.user.id);
+  if (userToCheck.logoutAll) {
+    res
+      .status(202)
+      .clearCookie("tokenUser", {
+        sameSite: "none",
+        secure: true,
+      })
+      .json({
+        msg: "Logout success",
+      });
+  } else {
+    const user = await User.findById(req.user.id).select(
+      "-userPassword -logoutAll -isActive"
+    );
+    res.json(user);
+  }
 });
 
 // @route POST Auth
@@ -77,6 +91,7 @@ Router.post("/auth", async (req, res) => {
     if (!comparePassword) {
       return res.status(400).json({ msg: "Mật khẩu không đúng" });
     }
+    await User.findByIdAndUpdate(userExisting.id, { logoutAll: false });
     jwt.sign(
       { id: userExisting.id },
       process.env.JWT_SECRET,
@@ -127,6 +142,7 @@ Router.post("/googleLogin", async (req, res) => {
             .status(400)
             .json({ msg: "Tài khoản bị khóa liên hệ admin để mở" });
         }
+        await User.findByIdAndUpdate(userExisting.id, { logoutAll: false });
         jwt.sign(
           { id: userExisting.id },
           process.env.JWT_SECRET,
@@ -223,6 +239,7 @@ Router.post("/facebookLogin", async (req, res) => {
           .status(400)
           .json({ msg: "Tài khoản bị khóa liên hệ admin để mở" });
       }
+      await User.findByIdAndUpdate(userExisting.id, { logoutAll: false });
       jwt.sign(
         { id: userExisting.id },
         process.env.JWT_SECRET,
@@ -393,17 +410,24 @@ Router.post("/register", async (req, res) => {
 // @access Private
 Router.patch("/:id", async (req, res) => {
   try {
-    const { userName, imageUser, history, isActive } = req.body;
-
+    const { userName, imageUser, history, isActive, isUpload } = req.body;
     if (imageUser) {
-      const response = await cloudinary.uploader.upload(imageUser, {
-        upload_preset: "review_film_project",
-      });
+      let updateUser;
+      if (isUpload) {
+        const response = await cloudinary.uploader.upload(imageUser, {
+          upload_preset: "review_film_project",
+        });
 
-      const updateUser = {
-        userName,
-        imageUser: response.secure_url,
-      };
+        updateUser = {
+          userName,
+          imageUser: response.secure_url,
+        };
+      } else {
+        updateUser = {
+          userName,
+          imageUser,
+        };
+      }
       for (let prop in updateUser) {
         if (!updateUser[prop]) {
           delete updateUser[prop];
@@ -416,7 +440,7 @@ Router.patch("/:id", async (req, res) => {
         {
           new: true,
         }
-      );
+      ).select("-userPassword -logoutAll -isActive");
       res.json(updatedUser);
     } else {
       const updateUser = {
@@ -433,9 +457,41 @@ Router.patch("/:id", async (req, res) => {
         req.params.id,
         updateUser,
         { new: true }
-      );
+      ).select("-userPassword -logoutAll -isActive");
       res.json(updatedUser);
     }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// @route PATCH User
+// @desc Change Password
+// @access Private
+Router.patch("/changePw/:id", authUser, async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById(req.params.id);
+
+    const comparePassword = await bcrypt.compare(
+      oldPassword,
+      user.userPassword
+    );
+    if (!comparePassword) {
+      return res.status(400).json({ msg: "Mật khẩu cũ không đúng" });
+    }
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(newPassword, salt, async (err, hash) => {
+        await User.findByIdAndUpdate(
+          req.params.id,
+          { userPassword: hash, logoutAll: true },
+          {
+            new: true,
+          }
+        );
+        res.json("Change password success");
+      });
+    });
   } catch (err) {
     console.log(err);
   }
