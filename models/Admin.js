@@ -10,6 +10,11 @@ const AdminSchema = new Schema({
     type: Boolean,
     default: true,
   },
+  imageAdmin: {
+    type: String,
+    default:
+      "https://res.cloudinary.com/nghiemduong2000/image/upload/v1620266729/Review%20Film%20Project/base/flat_1000x1000_075_f.u2_lnllya.jpg",
+  },
   password: {
     type: String,
     required: true,

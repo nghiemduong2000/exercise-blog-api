@@ -4,6 +4,23 @@ const Router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authAdmin = require("../middlewares/authAdmin");
+const Category = require("../models/Category");
+const User = require("../models/User");
+const Film = require("../models/Film");
+
+// @route GET amount for each documents
+// @desc Get Amount For Each Documents
+// @access Private
+Router.get("/amount", authAdmin, async (req, res) => {
+  const amountCategories = await Category.countDocuments();
+  const amountFilms = await Film.countDocuments();
+  const amountUsers = await User.countDocuments();
+  res.json({
+    categories: amountCategories,
+    films: amountFilms,
+    users: amountUsers,
+  });
+});
 
 // @route GET Auth
 // @desc Get Admin Data
@@ -55,6 +72,7 @@ Router.post("/auth", async (req, res) => {
         res.json({
           _id: adminExisting.id,
           loginID: adminExisting.loginID,
+          imageAdmin: adminExisting.imageAdmin,
         });
       }
     );

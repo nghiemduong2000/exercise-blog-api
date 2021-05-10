@@ -4,6 +4,8 @@ const { addFilm, updateFilm } = require("../utils/addOrUpdateFilm");
 const Router = express.Router();
 const cloudinary = require("../utils/cloudinary");
 const mongoose = require("mongoose");
+const authUser = require("../middlewares/authUser");
+const authAdmin = require("../middlewares/authAdmin");
 
 const createUploader = async (file) => {
   return await cloudinary.uploader.upload(file, {
@@ -11,10 +13,17 @@ const createUploader = async (file) => {
   });
 };
 
-// @route GET films
-// @desc Get All Films
-// @access Public
+// @route GET amount films
+// @desc Get Amount Films
+// @access Private
+Router.get("/amount", authAdmin, async (req, res) => {
+  const amount = await Film.countDocuments();
+  res.json(amount);
+});
 
+// @route GET film
+// @desc Get A Film
+// @access Public
 Router.get("/", async (req, res) => {
   try {
     const { filmId } = req.query;
@@ -26,11 +35,14 @@ Router.get("/", async (req, res) => {
   }
 });
 
+// @route GET films related
+// @desc Get Films Related
+// @access Public
 Router.get("/related", async (req, res) => {
   try {
     const { filmId } = req.query;
     const film = await Film.findById(filmId);
-    const related = await Film.find({ genre: { $all: [film.genre[0]] } }).limit(
+    const related = await Film.find({ genre: { $in: [...film.genre] } }).limit(
       8
     );
     res.json({
@@ -42,40 +54,39 @@ Router.get("/related", async (req, res) => {
   }
 });
 
+// @route GET films filter
+// @desc Get Films Filter
+// @access Public
 Router.get("/filter", async (req, res) => {
   try {
-    const { genre } = req.query;
-    const listFilter = {
-      genre,
-    };
+    const { q, genre } = req.query;
 
-    for (let prop in listFilter) {
-      if (!listFilter[prop]) {
-        delete listFilter[prop];
-      }
+    let progress = {};
+    if (q) {
+      progress.$text = { $search: q };
+    }
+    if (genre) {
+      const checkGenre = typeof genre === "string" ? [genre] : [...genre];
+      progress.genre = { $all: checkGenre };
     }
 
-    const films = await Film.find({ ...listFilter }).sort("-date");
+    const filter = q
+      ? [{ ...progress }, { score: { $meta: "textScore" } }]
+      : [{ ...progress }];
+
+    const films = await Film.find(...filter).sort(
+      q ? { score: { $meta: "textScore" } } : "-date"
+    );
     res.json(films);
   } catch (err) {
     console.log(err);
   }
 });
 
-Router.get("/search", async (req, res) => {
-  try {
-    const { q } = req.query;
-    const films = await Film.find(
-      { $text: { $search: q } },
-      { score: { $meta: "textScore" } }
-    ).sort({ score: { $meta: "textScore" } });
-    res.json(films);
-  } catch (err) {
-    console.log(err);
-  }
-});
-
-Router.post("/recent", async (req, res) => {
+// @route POST films recent
+// @desc POST Films Recent
+// @access Private
+Router.post("/recent", authUser, async (req, res) => {
   try {
     const { history } = req.body;
     const listIdFilm = history.map((item) =>

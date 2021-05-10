@@ -10,6 +10,35 @@ const client = new OAuth2Client(
   "820242333597-7tbh02vghgiunu7ekdkugpte288cqhjb.apps.googleusercontent.com"
 );
 const cloudinary = require("../utils/cloudinary");
+const authAdmin = require("../middlewares/authAdmin");
+
+// @route GET Users
+// @desc Get Filter Users
+// @access Private
+Router.get("/filter", authAdmin, async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    const filter = q
+      ? [{ $text: { $search: q } }, { score: { $meta: "textScore" } }]
+      : [{}];
+
+    const users = await User.find(...filter)
+      .select("-userPassword")
+      .sort(q ? { score: { $meta: "textScore" } } : "-date");
+    res.json(users);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// @route GET Amount Users
+// @desc Get Amount Users
+// @access Private
+Router.get("/amount", authAdmin, async (req, res) => {
+  const amount = await User.countDocuments();
+  res.json(amount);
+});
 
 // @route GET Auth
 // @desc Get User Data
@@ -25,19 +54,24 @@ Router.get("/", authUser, (req, res) => {
 // @access Public
 Router.post("/auth", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { userEmail, userPassword } = req.body;
 
     // Simple validation
-    if (!email || !password) {
+    if (!userEmail || !userPassword) {
       return res.status(400).json({ msg: "Vui lòng điền tất cả ô trống" });
     }
     // Check for existing user
-    const userExisting = await User.findOne({ userEmail: email });
+    const userExisting = await User.findOne({ userEmail });
     if (!userExisting) {
       return res.status(400).json({ msg: "Người dùng này không tồn tại" });
     }
+    if (!userExisting.isActive) {
+      return res
+        .status(400)
+        .json({ msg: "Tài khoản bị khóa liên hệ admin để mở" });
+    }
     const comparePassword = await bcrypt.compare(
-      password,
+      userPassword,
       userExisting.userPassword
     );
     if (!comparePassword) {
@@ -88,6 +122,11 @@ Router.post("/googleLogin", async (req, res) => {
     if (email_verified) {
       const userExisting = await User.findOne({ userEmail: email });
       if (userExisting) {
+        if (!userExisting.isActive) {
+          return res
+            .status(400)
+            .json({ msg: "Tài khoản bị khóa liên hệ admin để mở" });
+        }
         jwt.sign(
           { id: userExisting.id },
           process.env.JWT_SECRET,
@@ -179,6 +218,11 @@ Router.post("/facebookLogin", async (req, res) => {
     const { email, name, picture } = response2;
     const userExisting = await User.findOne({ userEmail: email });
     if (userExisting) {
+      if (!userExisting.isActive) {
+        return res
+          .status(400)
+          .json({ msg: "Tài khoản bị khóa liên hệ admin để mở" });
+      }
       jwt.sign(
         { id: userExisting.id },
         process.env.JWT_SECRET,
@@ -249,12 +293,107 @@ Router.post("/facebookLogin", async (req, res) => {
   }
 });
 
+// @route POST Register
+// @desc Register No Response
+// @access Private
+Router.post("/registerNoRes", async (req, res) => {
+  try {
+    const { userName, userEmail, userPassword } = req.body;
+
+    // Simple validation
+    if (!userName || !userEmail || !userPassword) {
+      return res.status(400).json({ msg: "Vui lòng điền tất cả ô trống" });
+    }
+
+    // Check for existing user
+    const userExisting = await User.findOne({ userEmail });
+    if (userExisting) {
+      return res.status(400).json({ msg: "Email này đã tồn tại" });
+    }
+
+    const newUser = new User({
+      userName,
+      userEmail,
+      userPassword,
+    });
+
+    // Create salt & hash
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(userPassword, salt, (err, hash) => {
+        newUser.userPassword = hash;
+        newUser.save();
+      });
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+Router.post("/register", async (req, res) => {
+  try {
+    const { userName, userEmail, userPassword } = req.body;
+
+    // Simple validation
+    if (!userName || !userEmail || !userPassword) {
+      return res.status(400).json({ msg: "Vui lòng điền tất cả ô trống" });
+    }
+
+    // Check for existing user
+    const userExisting = await User.findOne({ userEmail });
+    if (userExisting) {
+      return res.status(400).json({ msg: "Email này đã tồn tại" });
+    }
+
+    const newUser = new User({
+      userName,
+      userEmail,
+      userPassword,
+    });
+
+    // Create salt & hash
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(userPassword, salt, (err, hash) => {
+        newUser.userPassword = hash;
+        newUser.save().then((user) => {
+          jwt.sign(
+            { id: user.id },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: 3600,
+            },
+            (err, token) => {
+              if (!req.signedCookies.token) {
+                res.cookie("tokenUser", token, {
+                  maxAge: 3600 * 24 * 1000,
+                  signed: true,
+                  httpOnly: true,
+                  sameSite: "none",
+                  secure: true,
+                });
+              }
+              res.json({
+                _id: user.id,
+                userName: user.userName,
+                userEmail: user.userEmail,
+                imageUser: user.imageUser,
+                history: user.history,
+              });
+            }
+          );
+        });
+      });
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // @route PATCH User
 // @desc Update User
 // @access Private
 Router.patch("/:id", async (req, res) => {
   try {
-    const { userName, imageUser, history } = req.body;
+    const { userName, imageUser, history, isActive } = req.body;
 
     if (imageUser) {
       const response = await cloudinary.uploader.upload(imageUser, {
@@ -283,9 +422,10 @@ Router.patch("/:id", async (req, res) => {
       const updateUser = {
         userName,
         history,
+        isActive,
       };
       for (let prop in updateUser) {
-        if (!updateUser[prop]) {
+        if (typeof updateUser[prop] === "undefined") {
           delete updateUser[prop];
         }
       }
