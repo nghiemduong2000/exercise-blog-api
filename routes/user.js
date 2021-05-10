@@ -44,23 +44,10 @@ Router.get("/amount", authAdmin, async (req, res) => {
 // @desc Get User Data
 // @access Private
 Router.get("/", authUser, async (req, res) => {
-  const userToCheck = await User.findById(req.user.id);
-  if (userToCheck.logoutAll) {
-    res
-      .status(202)
-      .clearCookie("tokenUser", {
-        sameSite: "none",
-        secure: true,
-      })
-      .json({
-        msg: "Logout success",
-      });
-  } else {
-    const user = await User.findById(req.user.id).select(
-      "-userPassword -logoutAll -isActive"
-    );
-    res.json(user);
-  }
+  const user = await User.findById(req.user.id).select(
+    "-userPassword -logoutAll -isActive"
+  );
+  res.json(user);
 });
 
 // @route POST Auth

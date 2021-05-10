@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-const authUser = (req, res, next) => {
+const authUser = async (req, res, next) => {
   const token = req.signedCookies.tokenUser;
 
   if (!token) {
@@ -9,6 +10,18 @@ const authUser = (req, res, next) => {
   try {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (user.logoutAll) {
+      return res
+        .status(400)
+        .clearCookie("tokenUser", {
+          sameSite: "none",
+          secure: true,
+        })
+        .json({
+          msg: "Mật khẩu đã bị thay đổi",
+        });
+    }
 
     // Add admin from payload
     req.user = decoded;
