@@ -15,7 +15,6 @@ const authUser = async (req, res, next) => {
     const user = await User.findById(id);
 
     if (user.lastChangePw.toString() !== lastChangePw) {
-      console.log("hello");
       return res
         .status(400)
         .clearCookie("tokenUser", {

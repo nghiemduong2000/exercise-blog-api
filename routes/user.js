@@ -472,7 +472,7 @@ Router.patch("/changePw/:id", authUser, async (req, res) => {
       bcrypt.hash(newPassword, salt, async (err, hash) => {
         await User.findByIdAndUpdate(
           req.params.id,
-          { userPassword: hash, lastChangePw: Date.now },
+          { userPassword: hash, lastChangePw: Date.now() },
           {
             new: true,
           }
