@@ -27,9 +27,9 @@ const UserSchema = new Schema({
     type: Boolean,
     default: true,
   },
-  logoutAll: {
-    type: Boolean,
-    default: false,
+  lastChangePw: {
+    type: Date,
+    default: Date.now,
   },
   date: {
     type: Date,

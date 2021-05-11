@@ -2,16 +2,20 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const authUser = async (req, res, next) => {
-  const token = req.signedCookies.tokenUser;
-
-  if (!token) {
-    return res.status(401).json({ msg: "Không có token nào được định nghĩa" });
-  }
   try {
+    const token = req.signedCookies.tokenUser;
+    if (!token) {
+      return res
+        .status(401)
+        .json({ msg: "Không có token nào được định nghĩa" });
+    }
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    if (user.logoutAll) {
+    const { id, lastChangePw } = decoded;
+    const user = await User.findById(id);
+
+    if (user.lastChangePw.toString() !== lastChangePw) {
+      console.log("hello");
       return res
         .status(400)
         .clearCookie("tokenUser", {
@@ -24,7 +28,7 @@ const authUser = async (req, res, next) => {
     }
 
     // Add admin from payload
-    req.user = decoded;
+    req.userId = id;
     next();
   } catch (err) {
     res.status(400).json({ msg: "Token không đúng" });

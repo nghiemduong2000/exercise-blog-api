@@ -96,4 +96,36 @@ Router.get("/deleteCookie", (req, res) => {
     });
 });
 
+// @route PATCH User at AdminPage
+// @desc Change Password
+// @access Private
+Router.patch("/changePw/:id", authAdmin, async (req, res) => {
+  try {
+    const { newPassword, passwordAdmin } = req.body;
+    const admin = await Admin.find();
+
+    const comparePassword = await bcrypt.compare(
+      passwordAdmin,
+      admin[0].password
+    );
+    if (!comparePassword) {
+      return res.status(400).json({ msg: "Mật khẩu admin không đúng" });
+    }
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(newPassword, salt, async (err, hash) => {
+        await User.findByIdAndUpdate(
+          req.params.id,
+          { userPassword: hash, logoutAll: true },
+          {
+            new: true,
+          }
+        );
+        res.json("Change password success");
+      });
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 module.exports = Router;

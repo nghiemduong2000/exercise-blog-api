@@ -44,8 +44,8 @@ Router.get("/amount", authAdmin, async (req, res) => {
 // @desc Get User Data
 // @access Private
 Router.get("/", authUser, async (req, res) => {
-  const user = await User.findById(req.user.id).select(
-    "-userPassword -logoutAll -isActive"
+  const user = await User.findById(req.userId).select(
+    "-userPassword -lastChangePw -isActive"
   );
   res.json(user);
 });
@@ -78,9 +78,11 @@ Router.post("/auth", async (req, res) => {
     if (!comparePassword) {
       return res.status(400).json({ msg: "Mật khẩu không đúng" });
     }
-    await User.findByIdAndUpdate(userExisting.id, { logoutAll: false });
     jwt.sign(
-      { id: userExisting.id },
+      {
+        id: userExisting.id,
+        lastChangePw: userExisting.lastChangePw.toString(),
+      },
       process.env.JWT_SECRET,
       { expiresIn: 3600 * 24 },
       (err, token) => {
@@ -129,9 +131,11 @@ Router.post("/googleLogin", async (req, res) => {
             .status(400)
             .json({ msg: "Tài khoản bị khóa liên hệ admin để mở" });
         }
-        await User.findByIdAndUpdate(userExisting.id, { logoutAll: false });
         jwt.sign(
-          { id: userExisting.id },
+          {
+            id: userExisting.id,
+            lastChangePw: userExisting.lastChangePw.toString(),
+          },
           process.env.JWT_SECRET,
           { expiresIn: 3600 * 24 },
           (err, token) => {
@@ -145,13 +149,8 @@ Router.post("/googleLogin", async (req, res) => {
                 secure: true,
               });
             }
-            const {
-              _id,
-              userName,
-              imageUser,
-              userEmail,
-              history,
-            } = userExisting;
+            const { _id, userName, imageUser, userEmail, history } =
+              userExisting;
             res.json({
               _id,
               userName,
@@ -173,7 +172,7 @@ Router.post("/googleLogin", async (req, res) => {
             newUser.userPassword = hash;
             newUser.save().then((user) => {
               jwt.sign(
-                { id: user.id },
+                { id: user.id, lastChangePw: user.lastChangePw.toString() },
                 process.env.JWT_SECRET,
                 {
                   expiresIn: 3600,
@@ -226,9 +225,11 @@ Router.post("/facebookLogin", async (req, res) => {
           .status(400)
           .json({ msg: "Tài khoản bị khóa liên hệ admin để mở" });
       }
-      await User.findByIdAndUpdate(userExisting.id, { logoutAll: false });
       jwt.sign(
-        { id: userExisting.id },
+        {
+          id: userExisting.id,
+          lastChangePw: userExisting.lastChangePw.toString(),
+        },
         process.env.JWT_SECRET,
         { expiresIn: 3600 * 24 },
         (err, token) => {
@@ -264,7 +265,7 @@ Router.post("/facebookLogin", async (req, res) => {
           newUser.userPassword = hash;
           newUser.save().then((user) => {
             jwt.sign(
-              { id: user.id },
+              { id: user.id, lastChangePw: user.lastChangePw.toString() },
               process.env.JWT_SECRET,
               {
                 expiresIn: 3600,
@@ -360,7 +361,7 @@ Router.post("/register", async (req, res) => {
         newUser.userPassword = hash;
         newUser.save().then((user) => {
           jwt.sign(
-            { id: user.id },
+            { id: user.id, lastChangePw: user.lastChangePw.toString() },
             process.env.JWT_SECRET,
             {
               expiresIn: 3600,
@@ -427,7 +428,7 @@ Router.patch("/:id", async (req, res) => {
         {
           new: true,
         }
-      ).select("-userPassword -logoutAll -isActive");
+      ).select("-userPassword -lastChangePw -isActive");
       res.json(updatedUser);
     } else {
       const updateUser = {
@@ -444,7 +445,7 @@ Router.patch("/:id", async (req, res) => {
         req.params.id,
         updateUser,
         { new: true }
-      ).select("-userPassword -logoutAll -isActive");
+      ).select("-userPassword -lastChangePw -isActive");
       res.json(updatedUser);
     }
   } catch (err) {
@@ -471,7 +472,7 @@ Router.patch("/changePw/:id", authUser, async (req, res) => {
       bcrypt.hash(newPassword, salt, async (err, hash) => {
         await User.findByIdAndUpdate(
           req.params.id,
-          { userPassword: hash, logoutAll: true },
+          { userPassword: hash, lastChangePw: Date.now },
           {
             new: true,
           }
