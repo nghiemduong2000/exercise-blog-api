@@ -7,6 +7,7 @@ const authAdmin = require("../middlewares/authAdmin");
 const Category = require("../models/Category");
 const User = require("../models/User");
 const Film = require("../models/Film");
+const cloudinary = require("../utils/cloudinary");
 
 // @route GET amount for each documents
 // @desc Get Amount For Each Documents
@@ -27,7 +28,7 @@ Router.get("/amount", authAdmin, async (req, res) => {
 // @access Private
 Router.get("/", authAdmin, (req, res) => {
   Admin.findById(req.admin.id)
-    .select("-password")
+    .select("-password -lastChangePw")
     .then((admin) => res.json(admin));
 });
 
@@ -115,7 +116,69 @@ Router.patch("/changePw/:id", authAdmin, async (req, res) => {
       bcrypt.hash(newPassword, salt, async (err, hash) => {
         await User.findByIdAndUpdate(
           req.params.id,
-          { userPassword: hash, logoutAll: true },
+          { userPassword: hash, lastChangePw: Date.now() },
+          {
+            new: true,
+          }
+        );
+        res.json("Change password success");
+      });
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// @route PATCH Admin
+// @desc Update Image Admin
+// @access Private
+Router.patch("/", authAdmin, async (req, res) => {
+  try {
+    const { imageAdmin, isUpload } = req.body;
+    let imageUpdate;
+    if (isUpload) {
+      const response = await cloudinary.uploader.upload(imageAdmin, {
+        upload_preset: "review_film_project",
+      });
+
+      imageUpdate = response.secure_url;
+    } else {
+      imageUpdate = imageAdmin;
+    }
+    const admin = await Admin.find();
+    const updatedAdmin = await Admin.findOneAndUpdate(
+      admin[0].id,
+      { imageAdmin: imageUpdate },
+      {
+        new: true,
+      }
+    ).select("-password -lastChangePw");
+    res.json(updatedAdmin);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// @route PATCH Admin
+// @desc Change Password Admin
+// @access Private
+Router.patch("/changePwAdmin", authAdmin, async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const admin = await Admin.find();
+
+    const comparePassword = await bcrypt.compare(
+      oldPassword,
+      admin[0].password
+    );
+    if (!comparePassword) {
+      return res.status(400).json({ msg: "Mật khẩu cũ không đúng" });
+    }
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(newPassword, salt, async (err, hash) => {
+        await Admin.findByIdAndUpdate(
+          admin[0].id,
+          { password: hash, lastChangePw: Date.now() },
           {
             new: true,
           }

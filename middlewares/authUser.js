@@ -16,7 +16,7 @@ const authUser = async (req, res, next) => {
 
     if (user.lastChangePw.toString() !== lastChangePw) {
       return res
-        .status(400)
+        .status(401)
         .clearCookie("tokenUser", {
           sameSite: "none",
           secure: true,

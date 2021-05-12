@@ -26,9 +26,9 @@ Router.get("/amount", authAdmin, async (req, res) => {
 // @access Public
 Router.get("/", async (req, res) => {
   try {
-    const { filmId } = req.query;
+    const { slug } = req.query;
 
-    const film = await Film.findById(filmId);
+    const film = await Film.findOne({ slug });
     res.json(film);
   } catch (err) {
     console.log(err);
@@ -40,8 +40,8 @@ Router.get("/", async (req, res) => {
 // @access Public
 Router.get("/related", async (req, res) => {
   try {
-    const { filmId } = req.query;
-    const film = await Film.findById(filmId);
+    const { slug } = req.query;
+    const film = await Film.findOne({ slug });
     const related = await Film.find({ genre: { $in: [...film.genre] } }).limit(
       8
     );
@@ -93,7 +93,7 @@ Router.post("/recent", authUser, async (req, res) => {
       mongoose.Types.ObjectId(item.filmId)
     );
     const films = await Film.find({ _id: { $in: listIdFilm } }).select(
-      "title posterFilm youtubeURL genre actor description reviews"
+      "title posterFilm youtubeURL genre actor description reviews slug"
     );
     const sortRecent = [];
     for (let i = 0; i < history.length; i++) {
@@ -150,7 +150,7 @@ Router.post("/", async (req, res) => {
 // @route PATCH post
 // @desc UPDATE A Post
 // @access Public
-Router.patch("/:id", async (req, res) => {
+Router.patch("/:slug", async (req, res) => {
   try {
     const {
       title,
@@ -169,15 +169,19 @@ Router.patch("/:id", async (req, res) => {
           msg: "Vui lòng điền vào ô trống",
         });
       }
-      if (isUpload === "UPLOAD") {
-        let file_urls = [];
 
+      if (isUpload) {
+        let file_urls = [];
         for (let file of images) {
-          const response = await createUploader(file);
-          file_urls.push(response);
+          if (file) {
+            const response = await createUploader(file);
+            file_urls.push(response.secure_url);
+          } else {
+            file_urls.push(file);
+          }
         }
 
-        updateFilm(req, res, file_urls[0].secure_url, file_urls[1].secure_url);
+        updateFilm(req, res, file_urls[0], file_urls[1]);
       } else {
         updateFilm(req, res, images[0], images[1]);
       }
@@ -192,9 +196,13 @@ Router.patch("/:id", async (req, res) => {
         }
       }
 
-      const updateFilm = await Film.findByIdAndUpdate(req.params.id, infoFilm, {
-        new: true,
-      });
+      const updateFilm = await Film.findOneAndUpdate(
+        req.params.slug,
+        infoFilm,
+        {
+          new: true,
+        }
+      );
       await res.json(updateFilm);
     }
   } catch (err) {

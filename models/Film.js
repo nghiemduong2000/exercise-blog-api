@@ -11,6 +11,10 @@ const FilmSchema = new Schema({
     type: String,
     required: true,
   },
+  slug: {
+    type: String,
+    required: true,
+  },
   posterFilm: {
     type: String,
     required: true,

@@ -19,6 +19,10 @@ const AdminSchema = new Schema({
     type: String,
     required: true,
   },
+  lastChangePw: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = Admin = mongoose.model("Admin", AdminSchema);

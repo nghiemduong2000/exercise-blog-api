@@ -1,14 +1,9 @@
 const Film = require("../models/Film");
+const getSlug = require("./getSlug");
 
 const addFilm = (req, res, poster, banner) => {
-  const {
-    title,
-    youtubeURL,
-    description,
-    genre,
-    actor,
-    titleSearch,
-  } = req.body;
+  const { title, youtubeURL, description, genre, actor, titleSearch } =
+    req.body;
   let infoFilm = {
     title,
     youtubeURL,
@@ -18,6 +13,7 @@ const addFilm = (req, res, poster, banner) => {
     posterFilm: poster,
     bannerFilm: banner,
     titleSearch,
+    slug: title ? getSlug(title) : undefined,
   };
 
   for (let prop in infoFilm) {
@@ -42,17 +38,24 @@ const updateFilm = async (req, res, poster, banner) => {
       actor,
       titleSearch,
     } = req.body;
+    const currentFilm = await Film.findOne({ slug: req.params.slug });
 
     let infoFilm = {
-      title,
-      youtubeURL,
-      description,
+      title: title !== currentFilm.title ? title : undefined,
+      youtubeURL:
+        youtubeURL !== currentFilm.youtubeURL ? youtubeURL : undefined,
+      description:
+        description !== currentFilm.description ? description : undefined,
       reviews,
-      genre,
-      actor,
-      posterFilm: poster,
-      bannerFilm: banner,
-      titleSearch,
+      genre:
+        genre.join(",") !== currentFilm.genre.join(",") ? genre : undefined,
+      actor:
+        actor.join(",") !== currentFilm.actor.join(",") ? actor : undefined,
+      posterFilm: poster !== currentFilm.posterFilm ? poster : undefined,
+      bannerFilm: banner !== currentFilm.bannerFilm ? banner : undefined,
+      titleSearch:
+        titleSearch !== currentFilm.titleSearch ? titleSearch : undefined,
+      slug: title && title !== currentFilm.title ? getSlug(title) : undefined,
     };
 
     for (let prop in infoFilm) {
@@ -61,9 +64,13 @@ const updateFilm = async (req, res, poster, banner) => {
       }
     }
 
-    const updateFilm = await Film.findByIdAndUpdate(req.params.id, infoFilm, {
-      new: true,
-    });
+    const updateFilm = await Film.findOneAndUpdate(
+      { slug: req.params.slug },
+      infoFilm,
+      {
+        new: true,
+      }
+    );
     await res.json(updateFilm);
   } catch (err) {
     console.log(err);
