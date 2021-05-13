@@ -138,7 +138,8 @@ Router.patch("/", authAdmin, async (req, res) => {
     let imageUpdate;
     if (isUpload) {
       const response = await cloudinary.uploader.upload(imageAdmin, {
-        upload_preset: "review_film_project",
+        upload_preset: "vmoflix_project",
+        format: "webp",
       });
 
       imageUpdate = response.secure_url;

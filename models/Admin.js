@@ -13,7 +13,7 @@ const AdminSchema = new Schema({
   imageAdmin: {
     type: String,
     default:
-      "https://res.cloudinary.com/nghiemduong2000/image/upload/v1620266729/Review%20Film%20Project/base/flat_1000x1000_075_f.u2_lnllya.jpg",
+      "https://res.cloudinary.com/nghiemduong2000/image/upload/v1620542467/VMOflix%20Project/VMOflix%20-%20base/1f41f01769219a40f837861852b1afb2_riafjw.webp",
   },
   password: {
     type: String,

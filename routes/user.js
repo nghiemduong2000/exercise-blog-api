@@ -403,7 +403,8 @@ Router.patch("/:id", async (req, res) => {
       let updateUser;
       if (isUpload) {
         const response = await cloudinary.uploader.upload(imageUser, {
-          upload_preset: "review_film_project",
+          upload_preset: "vmoflix_project",
+          format: "webp",
         });
 
         updateUser = {

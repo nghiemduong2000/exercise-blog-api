@@ -9,7 +9,8 @@ const authAdmin = require("../middlewares/authAdmin");
 
 const createUploader = async (file) => {
   return await cloudinary.uploader.upload(file, {
-    upload_preset: "review_film_project",
+    upload_preset: "vmoflix_list_films",
+    format: "webp",
   });
 };
 
@@ -213,9 +214,9 @@ Router.patch("/:slug", async (req, res) => {
 // @route DELETE post
 // @desc Remove A Post
 // @access Public
-Router.delete("/:id", async (req, res) => {
+Router.delete("/:slug", async (req, res) => {
   try {
-    const film = await Film.findById(req.params.id);
+    const film = await Film.findOne({ slug: req.params.slug });
     await film.deleteOne();
     res.json({ success: true });
   } catch (err) {

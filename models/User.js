@@ -9,7 +9,7 @@ const UserSchema = new Schema({
   imageUser: {
     type: String,
     default:
-      "https://res.cloudinary.com/nghiemduong2000/image/upload/v1620266729/Review%20Film%20Project/base/flat_1000x1000_075_f.u2_lnllya.jpg",
+      "https://res.cloudinary.com/nghiemduong2000/image/upload/v1620266729/VMOflix%20Project/VMOflix%20-%20base/flat_1000x1000_075_f.u2_lnllya.webp",
   },
   userEmail: {
     type: String,
