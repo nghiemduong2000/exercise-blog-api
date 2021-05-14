@@ -1,8 +1,7 @@
 const Film = require("../models/Film");
-const getSlug = require("./getSlug");
 
 const addFilm = (req, res, poster, banner) => {
-  const { title, youtubeURL, description, genre, actor, titleSearch } =
+  const { title, youtubeURL, description, genre, actor, titleSearch, slug } =
     req.body;
   let infoFilm = {
     title,
@@ -13,7 +12,7 @@ const addFilm = (req, res, poster, banner) => {
     posterFilm: poster,
     bannerFilm: banner,
     titleSearch,
-    slug: title ? getSlug(title) : undefined,
+    slug,
   };
 
   for (let prop in infoFilm) {
@@ -37,6 +36,7 @@ const updateFilm = async (req, res, poster, banner) => {
       reviews,
       actor,
       titleSearch,
+      slug,
     } = req.body;
     const currentFilm = await Film.findOne({ slug: req.params.slug });
 
@@ -55,7 +55,7 @@ const updateFilm = async (req, res, poster, banner) => {
       bannerFilm: banner !== currentFilm.bannerFilm ? banner : undefined,
       titleSearch:
         titleSearch !== currentFilm.titleSearch ? titleSearch : undefined,
-      slug: title && title !== currentFilm.title ? getSlug(title) : undefined,
+      slug: slug !== currentFilm.slug ? slug : undefined,
     };
 
     for (let prop in infoFilm) {

@@ -110,8 +110,8 @@ Router.post("/recent", authUser, async (req, res) => {
   }
 });
 
-// @route POST post
-// @desc Create A New Post
+// @route POST film
+// @desc Create A New Film
 // @access Public
 Router.post("/", async (req, res) => {
   try {
@@ -131,7 +131,7 @@ Router.post("/", async (req, res) => {
       });
     }
 
-    if (isUpload === "UPLOAD") {
+    if (isUpload) {
       let file_urls = [];
 
       for (let file of images) {
@@ -148,8 +148,8 @@ Router.post("/", async (req, res) => {
   }
 });
 
-// @route PATCH post
-// @desc UPDATE A Post
+// @route PATCH film
+// @desc UPDATE A Film
 // @access Public
 Router.patch("/:slug", async (req, res) => {
   try {
@@ -211,8 +211,8 @@ Router.patch("/:slug", async (req, res) => {
   }
 });
 
-// @route DELETE post
-// @desc Remove A Post
+// @route DELETE film
+// @desc Remove A Film
 // @access Public
 Router.delete("/:slug", async (req, res) => {
   try {
@@ -221,6 +221,22 @@ Router.delete("/:slug", async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(400).json({ success: false, err });
+  }
+});
+
+// @route GET slug
+// @desc Check Slug Exiting
+// @access Public
+Router.get("/checkSlug/:slug", async (req, res) => {
+  try {
+    const slugExisting = await Film.findOne({ slug: req.params.slug });
+    if (slugExisting) {
+      res.json({ msg: "Slug này đã tồn tại" });
+    } else {
+      res.json({ msg: "" });
+    }
+  } catch (err) {
+    console.log(err);
   }
 });
 

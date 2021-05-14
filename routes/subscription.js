@@ -24,23 +24,31 @@ Router.post("/", async (req, res) => {
   res.status(201).json({ id: response.id });
 });
 
-Router.get("/push", async (req, res) => {
+Router.post("/push", async (req, res) => {
   try {
+    const { slug } = req.body;
     const allSubscription = await Subscription.find();
     for (let subscription of allSubscription) {
       await webpush.sendNotification(
         subscription.subscription,
         JSON.stringify({
-          title: "Có phim mới",
-          text: "Uấy!!! Có phim mới rồi này",
+          title: "VMOflix - Có phim mới",
+          text: "Uấy!!! Có phim mới rồi này vào xem ngay thôi nào",
           tag: "new-film",
-          url: "/",
+          url: `/film/${slug}`,
         })
       );
     }
     res.status(202).json({});
   } catch (err) {
-    console.log(err);
+    if (err.statusCode === 410) {
+      await Subscription.findOneAndDelete({
+        "subscription.endpoint": err.endpoint,
+      });
+      res.json({ unsubscription: true });
+    } else {
+      res.json({ error: "unexpected" });
+    }
   }
 });
 
