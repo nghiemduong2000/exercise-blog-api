@@ -23,7 +23,11 @@ const FilmSchema = new Schema({
     type: String,
     required: true,
   },
-  youtubeURL: {
+  trailerURL: {
+    type: String,
+    required: true,
+  },
+  filmURL: {
     type: String,
     required: true,
   },
@@ -42,6 +46,10 @@ const FilmSchema = new Schema({
   reviews: {
     type: Array,
     default: [],
+  },
+  softDelete: {
+    type: Boolean,
+    default: false,
   },
   date: {
     type: Date,

@@ -1,11 +1,20 @@
 const Film = require("../models/Film");
 
 const addFilm = (req, res, poster, banner) => {
-  const { title, youtubeURL, description, genre, actor, titleSearch, slug } =
-    req.body;
+  const {
+    title,
+    trailerURL,
+    filmURL,
+    description,
+    genre,
+    actor,
+    titleSearch,
+    slug,
+  } = req.body;
   let infoFilm = {
     title,
-    youtubeURL,
+    trailerURL,
+    filmURL,
     description,
     genre,
     actor,
@@ -30,20 +39,23 @@ const updateFilm = async (req, res, poster, banner) => {
   try {
     const {
       title,
-      youtubeURL,
+      trailerURL,
+      filmURL,
       description,
       genre,
       reviews,
       actor,
       titleSearch,
       slug,
+      softDelete,
     } = req.body;
     const currentFilm = await Film.findOne({ slug: req.params.slug });
 
     let infoFilm = {
       title: title !== currentFilm.title ? title : undefined,
-      youtubeURL:
-        youtubeURL !== currentFilm.youtubeURL ? youtubeURL : undefined,
+      trailerURL:
+        trailerURL !== currentFilm.trailerURL ? trailerURL : undefined,
+      filmURL: filmURL !== currentFilm.filmURL ? filmURL : undefined,
       description:
         description !== currentFilm.description ? description : undefined,
       reviews,
@@ -59,7 +71,7 @@ const updateFilm = async (req, res, poster, banner) => {
     };
 
     for (let prop in infoFilm) {
-      if (!infoFilm[prop]) {
+      if (typeof infoFilm[prop] === "undefined") {
         delete infoFilm[prop];
       }
     }

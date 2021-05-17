@@ -29,7 +29,7 @@ Router.get("/", async (req, res) => {
   try {
     const { slug } = req.query;
 
-    const film = await Film.findOne({ slug });
+    const film = await Film.findOne({ slug, softDelete: false });
     res.json(film);
   } catch (err) {
     console.log(err);
@@ -42,10 +42,11 @@ Router.get("/", async (req, res) => {
 Router.get("/related", async (req, res) => {
   try {
     const { slug } = req.query;
-    const film = await Film.findOne({ slug });
-    const related = await Film.find({ genre: { $in: [...film.genre] } }).limit(
-      8
-    );
+    const film = await Film.findOne({ slug, softDelete: false });
+    const related = await Film.find({
+      genre: { $in: [...film.genre] },
+      softDelete: false,
+    }).limit(8);
     res.json({
       film,
       related,
@@ -60,7 +61,7 @@ Router.get("/related", async (req, res) => {
 // @access Public
 Router.get("/filter", async (req, res) => {
   try {
-    const { q, genre } = req.query;
+    const { q, genre, bin } = req.query;
 
     let progress = {};
     if (q) {
@@ -69,6 +70,11 @@ Router.get("/filter", async (req, res) => {
     if (genre) {
       const checkGenre = typeof genre === "string" ? [genre] : [...genre];
       progress.genre = { $all: checkGenre };
+    }
+    if (bin) {
+      progress.softDelete = true;
+    } else {
+      progress.softDelete = false;
     }
 
     const filter = q
@@ -93,8 +99,11 @@ Router.post("/recent", authUser, async (req, res) => {
     const listIdFilm = history.map((item) =>
       mongoose.Types.ObjectId(item.filmId)
     );
-    const films = await Film.find({ _id: { $in: listIdFilm } }).select(
-      "title posterFilm youtubeURL genre actor description reviews slug"
+    const films = await Film.find({
+      _id: { $in: listIdFilm },
+      softDelete: false,
+    }).select(
+      "title posterFilm trailerURL filmURL genre actor description reviews slug"
     );
     const sortRecent = [];
     for (let i = 0; i < history.length; i++) {
@@ -117,7 +126,8 @@ Router.post("/", async (req, res) => {
   try {
     const {
       title,
-      youtubeURL,
+      trailerURL,
+      filmURL,
       description,
       genre,
       images,
@@ -125,7 +135,14 @@ Router.post("/", async (req, res) => {
       titleSearch,
     } = req.body;
 
-    if (!title || !youtubeURL || !description || !genre || !titleSearch) {
+    if (
+      !title ||
+      !trailerURL ||
+      !description ||
+      !genre ||
+      !titleSearch ||
+      !filmURL
+    ) {
       return res.status(400).json({
         msg: "Vui lòng điền vào ô trống",
       });
@@ -155,22 +172,30 @@ Router.patch("/:slug", async (req, res) => {
   try {
     const {
       title,
-      youtubeURL,
+      trailerURL,
+      filmURL,
       description,
       genre,
       images,
       reviews,
       isUpload,
       titleSearch,
+      softDelete,
     } = req.body;
 
     if (images) {
-      if (!title || !youtubeURL || !description || !genre || !titleSearch) {
+      if (
+        !title ||
+        !trailerURL ||
+        !description ||
+        !genre ||
+        !titleSearch ||
+        !filmURL
+      ) {
         return res.status(400).json({
           msg: "Vui lòng điền vào ô trống",
         });
       }
-
       if (isUpload) {
         let file_urls = [];
         for (let file of images) {
@@ -189,16 +214,17 @@ Router.patch("/:slug", async (req, res) => {
     } else {
       let infoFilm = {
         reviews,
+        softDelete,
       };
 
       for (let prop in infoFilm) {
-        if (!infoFilm[prop]) {
+        if (typeof infoFilm[prop] === "undefined") {
           delete infoFilm[prop];
         }
       }
 
       const updateFilm = await Film.findOneAndUpdate(
-        req.params.slug,
+        { slug: req.params.slug },
         infoFilm,
         {
           new: true,

@@ -14,7 +14,7 @@ const cloudinary = require("../utils/cloudinary");
 // @access Private
 Router.get("/amount", authAdmin, async (req, res) => {
   const amountCategories = await Category.countDocuments();
-  const amountFilms = await Film.countDocuments();
+  const amountFilms = await Film.countDocuments({ softDelete: false });
   const amountUsers = await User.countDocuments();
   res.json({
     categories: amountCategories,
