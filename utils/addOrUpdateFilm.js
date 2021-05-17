@@ -71,7 +71,7 @@ const updateFilm = async (req, res, poster, banner) => {
     };
 
     for (let prop in infoFilm) {
-      if (typeof infoFilm[prop] === "undefined") {
+      if (!infoFilm[prop]) {
         delete infoFilm[prop];
       }
     }
