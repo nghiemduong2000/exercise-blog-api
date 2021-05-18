@@ -31,6 +31,10 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  resetLink: {
+    type: String,
+    default: ''
+  },
   date: {
     type: Date,
     default: Date.now,
