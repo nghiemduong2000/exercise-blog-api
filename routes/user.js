@@ -520,7 +520,7 @@ Router.patch('/resetPassword', async (req, res) => {
                       <p style='text-align: center; margin: 20px 0 0; font-size: 14px'>
                       Mật khẩu
                       <a href="https://vmoflix-vn.web.app/" style="color: rgb(229,59,19); text-decoration: none">VMOflix-vn.web.app</a>
-                      của bạn đã được thay đổi vào ${`ngày ${currentDate.getDate()} tháng ${currentDate.getMonth()} năm ${currentDate.getFullYear()} lúc ${currentDate.getHours()}:${currentDate.getMinutes()}`}</p>
+                      của bạn đã được thay đổi vào ${`ngày ${currentDate.getDate()} tháng ${currentDate.getMonth()} năm ${currentDate.getFullYear()} lúc ${currentDate.getHours()}:${currentDate.getMinutes()} (UTC/GMT +0 hours)`}</p>
                       <p style='text-align: center; margin-bottom: 30px; font-size: 14px'><strong>Nếu bạn làm điều này,</strong> bạn có thể bỏ qua email này một cách an toàn.</p>
                       <p style='text-align: center; margin-bottom: 30px; font-size: 14px'><strong>Nếu bạn không làm điều này,</strong> vui lòng <a href="mailto:vmoflix.sp@gmail.com" style="text-decoration: none; color: rgb(229,59,19)">liên hệ ngay với chúng tôi</a> để được hỗ trợ kịp thời.</p>
                     </div>
