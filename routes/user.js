@@ -494,6 +494,47 @@ Router.patch('/resetPassword', async (req, res) => {
                   new: true,
                 }
               );
+              const transporter = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 465,
+                secure: true,
+                auth: {
+                  user: "vmoflix.sp@gmail.com",
+                  pass: "vmoflix2021",
+                },
+                tls: {
+                  rejectUnauthorized: false,
+                },
+              });
+              const currentDate = new Date();
+              var mainOptions = {
+                from: "VMOflix Support <vmoflix.sp@gmail.com>",
+                to: user.userEmail,
+                subject: "Mật khẩu đã được thay đổi",
+                html: `
+                  <div style='min-width: 100%; font-family: Helvetica,Arial,sans-serif; color: #333;'>
+                    <div style='width: 500px; border: 1px solid #ccc; border-radius: 8px; margin: 32px auto 0; padding: 40px'>
+                      <img
+                      style='width: 200px; display: block; margin: auto' src='https://res.cloudinary.com/nghiemduong2000/image/upload/v1618458158/VMOflix%20Project/VMOflix%20-%20base/VMOFLIX-02-02_bpjidv.png' alt="logo">
+                      <h2 style='font-size: 30px; line-height: 30px; margin: 50px 0  0; text-align:center'>Xin chào!</h2>
+                      <p style='text-align: center; margin: 20px 0 0; font-size: 14px'>
+                      Mật khẩu
+                      <a href="https://vmoflix-vn.web.app/" style="color: rgb(229,59,19); text-decoration: none">VMOflix-vn.web.app</a>
+                      của bạn đã được thay đổi vào ${`ngày ${currentDate.getDate()} tháng ${currentDate.getMonth()} năm ${currentDate.getFullYear()} lúc ${currentDate.getHours()}:${currentDate.getMinutes()}`}</p>
+                      <p style='text-align: center; margin-bottom: 30px; font-size: 14px'><strong>Nếu bạn làm điều này,</strong> bạn có thể bỏ qua email này một cách an toàn.</p>
+                      <p style='text-align: center; margin-bottom: 30px; font-size: 14px'><strong>Nếu bạn không làm điều này,</strong> vui lòng <a href="mailto:vmoflix.sp@gmail.com" style="text-decoration: none; color: rgb(229,59,19)">liên hệ ngay với chúng tôi</a> để được hỗ trợ kịp thời.</p>
+                    </div>
+                  </div>
+                `,
+              };
+              transporter.sendMail(mainOptions, function(err, info){
+                if (err) {
+                    console.log(err);
+                    return res.status(400).json({
+                      msg: err.message
+                    })
+                }
+            });
               res.json("Change password success");
             });
           })
