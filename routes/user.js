@@ -425,7 +425,7 @@ Router.patch("/forgotPassword", async (req, res) => {
         rejectUnauthorized: false,
       },
     });
-    const url = `http://localhost:3000/reset-password/${token}`
+    const url = `https://vmoflix-vn.web.app/reset-password/${token}`
     var mainOptions = {
       from: "VMOflix Support <vmoflix.sp@gmail.com>",
       to: email,
