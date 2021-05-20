@@ -33,7 +33,7 @@ Router.post("/push", async (req, res) => {
         subscription.subscription,
         JSON.stringify({
           title: "VMOflix - Có phim mới",
-          text: "Uấy!!! Có phim mới rồi này vào xem ngay thôi nào",
+          text: "Uầy!!! Có phim mới rồi này vào xem ngay thôi nào",
           tag: "new-film",
           url: `/film/${slug}`,
         })
