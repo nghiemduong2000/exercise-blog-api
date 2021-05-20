@@ -553,7 +553,6 @@ Router.patch('/resetPassword', async (req, res) => {
 // @access Private
 Router.patch("/:id", async (req, res) => {
   try {
-    console.log('update user')
     const { userName, imageUser, history, isActive, isUpload } = req.body;
     if (imageUser) {
       let updateUser;
