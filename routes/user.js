@@ -439,10 +439,10 @@ Router.patch("/forgotPassword", async (req, res) => {
             <p style='text-align: center; margin: 20px 0 0; font-size: 14px'>Bạn nhận được email này vì chúng tôi đã nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>
             <p style='text-align: center; margin-bottom: 30px; font-size: 14px'><strong>Nếu bạn không làm điều này,</strong> vui lòng bỏ qua email này và tuyệt đối không cung cấp nội dung email này cho người khác.</p>
             <p style='text-align: center; font-size: 14px'>Nhấn vào nút Đặt lại mật khẩu dưới đây để đặt mật khẩu mới</p>
-            <a href=${url} target="_blank" style='text-decoration: none; display: block; text-align: center; padding: 14px 0; font-size: 20px; font-weight: bold; width: 100%; border-radius: 5px; border: none; background-color: rgb(229,59,19); color: white'>Đặt lại mật khẩu</a>
+            <a href=${url} target="_blank" style='text-decoration: none; display: block; text-align: center; padding: 14px 0; font-size: 20px; font-weight: bold; width: 100%; border-radius: 5px; border: none; background-color: rgb(229,9,20); color: white'>Đặt lại mật khẩu</a>
             <div style='padding: 20px 10px; background-color: #ddd; border-radius: 5px; margin-top: 40px'>
               <p style='margin: 0; text-align: center; margin-bottom: 5px; font-size: 14px'>Nút đặt lại mật khẩu không hoạt động? Bạn có thể sao chép liên kết sau và dán vào trình duyệt:</p>
-              <a href=${url} target="_blank" style='text-decoration: none; color: rgb(229,59,19); display: block; text-align: center; font-size: 14px'>${url}</a>
+              <a href=${url} target="_blank" style='text-decoration: none; color: rgb(229,9,20); display: block; text-align: center; font-size: 14px'>${url}</a>
             </div>
           </div>
         </div>
@@ -519,10 +519,10 @@ Router.patch('/resetPassword', async (req, res) => {
                       <h2 style='font-size: 30px; line-height: 30px; margin: 50px 0  0; text-align:center'>Xin chào!</h2>
                       <p style='text-align: center; margin: 20px 0 0; font-size: 14px'>
                       Mật khẩu
-                      <a href="https://vmoflix-vn.web.app/" style="color: rgb(229,59,19); text-decoration: none">VMOflix-vn.web.app</a>
+                      <a href="https://vmoflix-vn.web.app/" style="color: rgb(229,9,20); text-decoration: none">VMOflix-vn.web.app</a>
                       của bạn đã được thay đổi vào ${`ngày ${currentDate.getDate()} tháng ${currentDate.getMonth()} năm ${currentDate.getFullYear()} lúc ${currentDate.getHours()}:${currentDate.getMinutes()} (UTC/GMT +0 hours)`}</p>
                       <p style='text-align: center; margin-bottom: 30px; font-size: 14px'><strong>Nếu bạn làm điều này,</strong> bạn có thể bỏ qua email này một cách an toàn.</p>
-                      <p style='text-align: center; margin-bottom: 30px; font-size: 14px'><strong>Nếu bạn không làm điều này,</strong> vui lòng <a href="mailto:vmoflix.sp@gmail.com" style="text-decoration: none; color: rgb(229,59,19)">liên hệ ngay với chúng tôi</a> để được hỗ trợ kịp thời.</p>
+                      <p style='text-align: center; margin-bottom: 30px; font-size: 14px'><strong>Nếu bạn không làm điều này,</strong> vui lòng <a href="mailto:vmoflix.sp@gmail.com" style="text-decoration: none; color: rgb(229,9,20)">liên hệ ngay với chúng tôi</a> để được hỗ trợ kịp thời.</p>
                     </div>
                   </div>
                 `,
