@@ -419,7 +419,7 @@ Router.patch("/forgotPassword", async (req, res) => {
       secure: true,
       auth: {
         user: "vmoflix.sp@gmail.com",
-        pass: "VMOflixsupport",
+        pass: process.env.PASSWORD_EMAIL_SUPPORT,
       },
       tls: {
         rejectUnauthorized: false,
