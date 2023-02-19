@@ -11,6 +11,7 @@ const whitelist = [
   "http://localhost:3000",
   "https://exercises-at-vmo.web.app",
   "https://vmoflix-vn.web.app",
+  "https://exercise-blog-api.vercel.app",
 ];
 app.use(
   cors({
