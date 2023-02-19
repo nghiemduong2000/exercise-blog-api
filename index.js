@@ -51,5 +51,5 @@ app.use("/api/films", require("./routes/films"));
 app.use("/api/categories", require("./routes/categories"));
 app.use("/api/subscription", require("./routes/subscription"));
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5500;
 app.listen(port, () => console.log(`Server started on port ${port}`));
