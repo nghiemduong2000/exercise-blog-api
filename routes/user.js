@@ -500,7 +500,7 @@ Router.patch('/resetPassword', async (req, res) => {
                 secure: true,
                 auth: {
                   user: "vmoflix.sp@gmail.com",
-                  pass: "vmoflix2021",
+                  pass: process.env.PASSWORD_EMAIL_SUPPORT,
                 },
                 tls: {
                   rejectUnauthorized: false,
